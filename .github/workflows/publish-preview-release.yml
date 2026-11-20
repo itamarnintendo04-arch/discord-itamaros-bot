@@ -1,0 +1,27 @@
+name: Publish Preview Release
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-preview-release.yml'
+permissions:
+  contents: write
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish placeholder release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG='v0.0.0-placeholder.1'
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo 'Placeholder release already exists.'
+            exit 0
+          fi
+          gh release create "$TAG" --target "$GITHUB_SHA" --prerelease \
+            --title 'discord-itamaros-bot — Empty Repository Placeholder' \
+            --notes 'Placeholder prerelease only. This repository does not contain bot source, downloadable binaries, or a deployable build. GitHub provides the README source snapshot. Not ready for use.'
